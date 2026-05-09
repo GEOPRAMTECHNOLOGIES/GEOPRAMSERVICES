@@ -73,7 +73,7 @@ module.exports = async (req, res) => {
           PhoneNumber: phone,
           CallBackURL: CALLBACK_URL,
           AccountReference: 'GeopramGifts',
-          TransactionDesc: 'Donation to Geopram Technologies Gifts'
+            TransactionDesc: 'Purchase from Geopram Technologies'
         })
       }
     );
