@@ -1,6 +1,595 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Geopram — Pay</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@200;400;700;900&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:     #060d08;
+  --bg2:    #0a1410;
+  --bg3:    #0f1e16;
+  --bg4:    #162b1e;
+  --seam:   rgba(255,255,255,0.055);
+  --seam2:  rgba(255,255,255,0.1);
+  --g1:     #00e676;
+  --g2:     #00c853;
+  --g3:     #43a860;
+  --g4:     #1b5e30;
+  --g5:     #0d3318;
+  --g6:     #b9f6ca;
+  --card:   #0d1f12;
+  --stone:  #4d7a5a;
+  --light:  #d4edd9;
+  --muted:  #3a5c43;
+  --ink:    #040a06;
+  --danger: #ff5252;
+  --ok:     #69f0ae;
+}
+
+html{height:100%;background:var(--bg)}
+body{
+  min-height:100vh;
+  background:var(--bg);
+  color:var(--light);
+  font-family:'Instrument Sans',sans-serif;
+  font-size:15px;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+
+/* noise */
+body::before{
+  content:'';
+  position:fixed;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity:.032;pointer-events:none;z-index:0;
+}
+
+/* ambient glow */
+body::after{
+  content:'';
+  position:fixed;
+  top:-300px;left:50%;
+  transform:translateX(-50%);
+  width:900px;height:600px;
+  background:radial-gradient(ellipse,rgba(0,230,118,0.07) 0%,transparent 65%);
+  pointer-events:none;z-index:0;
+}
+
+/* watermark */
+.wm{
+  position:fixed;
+  bottom:-80px;right:-60px;
+  font-family:'Unbounded',sans-serif;
+  font-size:clamp(200px,30vw,380px);
+  font-weight:900;
+  color:rgba(0,230,118,0.03);
+  line-height:1;letter-spacing:-12px;
+  pointer-events:none;z-index:0;
+  user-select:none;
+}
+
+/* shell */
+.shell{
+  position:relative;z-index:1;
+  min-height:100vh;
+  display:grid;
+  grid-template-rows:auto 1fr auto;
+  max-width:1100px;
+  margin:0 auto;
+  padding:0 clamp(20px,5vw,60px);
+}
+
+/* header */
+.hdr{
+  padding:36px 0 24px;
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  border-bottom:1px solid var(--seam);
+}
+.brand-name{
+  font-family:'Unbounded',sans-serif;
+  font-size:12px;font-weight:700;
+  letter-spacing:4px;text-transform:uppercase;
+  color:var(--g1);
+}
+.brand-sub{
+  font-family:'Instrument Serif',serif;
+  font-style:italic;font-size:12px;
+  color:var(--stone);margin-top:2px;
+}
+.hdr-right{display:flex;align-items:center;gap:20px;padding-top:4px}
+.live-pill{
+  display:flex;align-items:center;gap:7px;
+  font-size:10px;letter-spacing:2px;
+  color:var(--g3);text-transform:uppercase;
+  border:1px solid var(--g4);
+  border-radius:40px;
+  padding:5px 12px;
+  background:rgba(0,200,83,0.06);
+}
+.dot{
+  width:6px;height:6px;border-radius:50%;
+  background:var(--g1);
+  box-shadow:0 0 0 0 rgba(0,230,118,0.6);
+  animation:pulse 2.2s ease infinite;
+}
+@keyframes pulse{
+  0%{box-shadow:0 0 0 0 rgba(0,230,118,0.6)}
+  70%{box-shadow:0 0 0 8px rgba(0,230,118,0)}
+  100%{box-shadow:0 0 0 0 rgba(0,230,118,0)}
+}
+.hdr-year{
+  font-family:'Unbounded',sans-serif;
+  font-size:10px;font-weight:700;
+  letter-spacing:3px;
+  color:rgba(255,255,255,0.15);
+}
+
+/* main grid */
+.main{
+  display:grid;
+  grid-template-columns:1fr 460px;
+  gap:0;
+  align-items:start;
+  padding:64px 0;
+}
+@media(max-width:860px){.main{grid-template-columns:1fr;gap:52px}}
+
+/* copy */
+.copy{padding-right:52px;padding-top:12px}
+@media(max-width:860px){.copy{padding-right:0}}
+
+.copy-tag{
+  display:inline-flex;align-items:center;gap:10px;
+  font-size:10px;letter-spacing:4px;
+  color:var(--g1);text-transform:uppercase;
+  margin-bottom:28px;font-weight:600;
+}
+.copy-tag::before{content:'';width:28px;height:1px;background:var(--g4)}
+
+.copy-h{
+  font-family:'Unbounded',sans-serif;
+  font-size:clamp(46px,6vw,78px);
+  font-weight:900;
+  line-height:0.92;
+  letter-spacing:-2.5px;
+  color:#fff;
+  margin-bottom:32px;
+}
+.copy-h .thin{font-weight:200;color:rgba(255,255,255,0.2)}
+.copy-h .accent{
+  font-family:'Instrument Serif',serif;
+  font-style:italic;font-weight:400;
+  color:var(--g1);
+  letter-spacing:-1px;
+}
+
+.copy-body{
+  font-size:14px;line-height:1.8;
+  color:var(--stone);max-width:320px;
+  margin-bottom:44px;
+}
+
+/* stats */
+.stats{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  border:1px solid var(--seam2);
+  border-radius:16px;overflow:hidden;
+  background:var(--bg2);
+}
+.stat{
+  padding:20px 22px;
+  border-right:1px solid var(--seam);
+}
+.stat:last-child{border-right:none}
+.stat-n{
+  font-family:'Unbounded',sans-serif;
+  font-size:22px;font-weight:700;
+  color:var(--g1);letter-spacing:-0.5px;
+  line-height:1;margin-bottom:5px;
+}
+.stat-l{font-size:10px;letter-spacing:2px;color:var(--stone);text-transform:uppercase}
+
+/* trust pills */
+.trust{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+.tpill{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:6px 13px;
+  border:1px solid var(--seam2);border-radius:40px;
+  font-size:10px;letter-spacing:1px;
+  color:var(--muted);
+  background:rgba(0,230,118,0.04);
+}
+.tpill-i{width:5px;height:5px;border-radius:50%;background:var(--g3)}
+
+/* ── PANEL ── */
+.panel{
+  background:var(--card);
+  border:1px solid rgba(0,230,118,0.12);
+  border-radius:28px;
+  overflow:hidden;
+  box-shadow:
+    0 0 0 1px rgba(0,0,0,0.6),
+    0 40px 80px rgba(0,0,0,0.6),
+    inset 0 1px 0 rgba(0,230,118,0.08);
+  position:relative;
+}
+/* top glow line */
+.panel::before{
+  content:'';
+  position:absolute;
+  top:0;left:10%;right:10%;height:1px;
+  background:linear-gradient(90deg,transparent,var(--g2),transparent);
+  pointer-events:none;
+}
+
+.panel-top{
+  background:linear-gradient(160deg,#0d2e18 0%,#0a1f10 100%);
+  padding:30px 32px 26px;
+  border-bottom:1px solid rgba(0,230,118,0.1);
+  position:relative;overflow:hidden;
+}
+.panel-top::after{
+  content:'';
+  position:absolute;
+  top:-60px;right:-60px;
+  width:200px;height:200px;
+  background:radial-gradient(circle,rgba(0,230,118,0.08) 0%,transparent 70%);
+  pointer-events:none;
+}
+.pt-label{
+  font-size:10px;letter-spacing:4px;
+  text-transform:uppercase;
+  color:var(--g4);margin-bottom:10px;
+  font-weight:600;
+}
+.pt-amount{
+  font-family:'Unbounded',sans-serif;
+  font-size:48px;font-weight:900;
+  color:var(--g1);
+  letter-spacing:-2px;line-height:1;
+  min-height:56px;
+  text-shadow:0 0 40px rgba(0,230,118,0.3);
+  transition:all .15s;
+}
+.pt-amount .cur{
+  font-size:16px;font-weight:400;
+  vertical-align:top;margin-top:10px;
+  display:inline-block;
+  color:var(--g4);margin-right:6px;
+}
+
+/* panel body */
+.panel-body{
+  padding:28px 32px 32px;
+  display:flex;flex-direction:column;gap:20px;
+}
+
+/* field */
+.fg{display:flex;flex-direction:column;gap:8px}
+.flabel{
+  font-size:10px;letter-spacing:3px;
+  text-transform:uppercase;
+  color:var(--stone);font-weight:600;
+}
+.fwrap{position:relative}
+.fwrap input{
+  width:100%;
+  padding:14px 16px 14px 46px;
+  background:var(--bg3);
+  border:1px solid rgba(0,230,118,0.1);
+  border-radius:12px;
+  color:#fff;
+  font-family:'Instrument Sans',sans-serif;
+  font-size:15px;font-weight:500;
+  outline:none;
+  transition:border-color .2s,box-shadow .2s,background .2s;
+  -webkit-appearance:none;
+}
+.fwrap input::placeholder{color:var(--muted);font-weight:400;font-size:13px}
+.fwrap input:focus{
+  border-color:rgba(0,230,118,0.4);
+  background:var(--bg4);
+  box-shadow:0 0 0 4px rgba(0,230,118,0.07);
+}
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none}
+.fico{
+  position:absolute;left:14px;top:50%;
+  transform:translateY(-50%);
+  color:var(--stone);pointer-events:none;
+}
+.fico svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;display:block}
+.fhint{font-size:10px;color:var(--muted);letter-spacing:.5px;opacity:.8}
+
+/* quick amounts */
+.qa-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+.qa{
+  padding:11px 4px;
+  background:var(--bg3);
+  border:1px solid rgba(0,230,118,0.1);
+  border-radius:10px;
+  font-family:'Unbounded',sans-serif;
+  font-size:11px;font-weight:700;
+  color:var(--stone);cursor:pointer;
+  text-align:center;letter-spacing:.5px;
+  transition:all .18s;
+  -webkit-appearance:none;
+}
+.qa:hover{border-color:rgba(0,230,118,0.35);color:var(--g1)}
+.qa.on{
+  background:rgba(0,230,118,0.1);
+  border-color:rgba(0,230,118,0.5);
+  color:var(--g1);
+  box-shadow:0 0 16px rgba(0,230,118,0.08);
+}
+
+/* or */
+.divor{display:flex;align-items:center;gap:10px;margin:-4px 0}
+.divor::before,.divor::after{content:'';flex:1;height:1px;background:var(--seam)}
+.divor span{font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase}
+
+/* pay btn */
+.pay-btn{
+  width:100%;padding:17px;
+  background:var(--g1);
+  border:none;border-radius:14px;
+  color:var(--ink);
+  font-family:'Unbounded',sans-serif;
+  font-size:12px;font-weight:900;
+  letter-spacing:3px;text-transform:uppercase;
+  cursor:pointer;
+  transition:transform .15s,filter .2s;
+  display:flex;align-items:center;justify-content:center;gap:12px;
+  position:relative;overflow:hidden;
+  -webkit-appearance:none;
+  box-shadow:0 0 30px rgba(0,230,118,0.2);
+}
+.pay-btn::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(255,255,255,0.15) 0%,transparent 50%);
+  pointer-events:none;
+}
+.pay-btn:hover:not(:disabled){transform:translateY(-2px);filter:brightness(1.08)}
+.pay-btn:active:not(:disabled){transform:scale(0.99)}
+.pay-btn:disabled{opacity:.45;cursor:not-allowed}
+.pay-btn svg{width:16px;height:16px;stroke:var(--ink);fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;transition:transform .2s}
+.pay-btn:hover:not(:disabled) svg{transform:translateX(3px)}
+
+/* spinner */
+.spin{
+  display:inline-block;width:15px;height:15px;
+  border:2px solid rgba(0,0,0,0.2);
+  border-top-color:var(--ink);
+  border-radius:50%;
+  animation:rot .65s linear infinite;flex-shrink:0;
+}
+@keyframes rot{to{transform:rotate(360deg)}}
+
+/* status */
+.status{display:none;border-radius:10px;padding:12px 14px;font-size:12px;line-height:1.6}
+.status.ok{display:block;background:rgba(105,240,174,0.07);border:1px solid rgba(105,240,174,0.2);color:var(--ok)}
+.status.er{display:block;background:rgba(255,82,82,0.07);border:1px solid rgba(255,82,82,0.2);color:var(--danger)}
+
+/* panel foot */
+.panel-foot{
+  border-top:1px solid var(--seam);
+  padding:14px 32px;
+  display:flex;align-items:center;justify-content:space-between;
+  background:rgba(0,0,0,0.2);
+}
+.pf-l{display:flex;align-items:center;gap:7px;font-size:10px;color:var(--muted);letter-spacing:1px}
+.pf-l svg{width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;opacity:.7}
+.pf-r{font-family:'Unbounded',sans-serif;font-size:9px;font-weight:700;letter-spacing:3px;color:var(--g4);text-transform:uppercase}
+
+/* footer */
+.ftr{
+  border-top:1px solid var(--seam);
+  padding:24px 0 40px;
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:12px;
+}
+.ftr-l{display:flex;flex-direction:column;gap:3px}
+.ftr-creator{
+  font-family:'Instrument Serif',serif;
+  font-style:italic;font-size:13px;color:var(--stone);
+}
+.ftr-creator strong{
+  font-family:'Unbounded',sans-serif;
+  font-style:normal;font-size:10px;font-weight:700;
+  letter-spacing:3px;color:rgba(255,255,255,0.35);margin-right:8px;
+}
+.ftr-email{font-size:11px;color:var(--g4);letter-spacing:.5px}
+.ftr-year{
+  font-family:'Unbounded',sans-serif;
+  font-size:11px;font-weight:700;letter-spacing:4px;
+  color:rgba(0,230,118,0.15);
+}
+
+/* mobile */
+@media(max-width:540px){
+  .stats{grid-template-columns:1fr 1fr;border-radius:12px}
+  .stat:nth-child(3){grid-column:1/-1;border-right:none;border-top:1px solid var(--seam)}
+  .panel-top{padding:22px 22px 20px}
+  .panel-body{padding:22px 22px 26px}
+  .panel-foot{padding:12px 22px}
+  .hdr-year{display:none}
+}
+
+/* entrance */
+.hdr,.copy,.panel,.ftr{animation:up .7s cubic-bezier(.22,1,.36,1) both}
+.copy{animation-delay:.06s}
+.panel{animation-delay:.14s}
+.ftr{animation-delay:.22s}
+@keyframes up{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+
+<div class="wm">GPY</div>
+
+<div class="shell">
+
+  <header class="hdr">
+    <div class="brand">
+      <div class="brand-name">Geopram</div>
+      <div class="brand-sub">Technologies Ltd · Nairobi</div>
+    </div>
+    <div class="hdr-right">
+      <div class="live-pill"><div class="dot"></div>Systems Live</div>
+      <div class="hdr-year">2026</div>
+    </div>
+  </header>
+
+  <main class="main">
+
+    <div class="copy">
+      <div class="copy-tag">M-Pesa Gateway</div>
+      <h1 class="copy-h">
+        <span class="thin">Send</span><br/>
+        <span class="accent">money</span><br/>
+        <span class="thin">now.</span>
+      </h1>
+      <p class="copy-body">Instant STK push to any Safaricom line. No app, no redirect — one prompt, one PIN, done in seconds.</p>
+
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-n">&lt;8s</div>
+          <div class="stat-l">Push Time</div>
+        </div>
+        <div class="stat">
+          <div class="stat-n">256b</div>
+          <div class="stat-l">TLS Grade</div>
+        </div>
+        <div class="stat">
+          <div class="stat-n">24/7</div>
+          <div class="stat-l">Uptime</div>
+        </div>
+      </div>
+
+      <div class="trust">
+        <div class="tpill"><div class="tpill-i"></div>Live STK Push</div>
+        <div class="tpill"><div class="tpill-i"></div>SSL Encrypted</div>
+        <div class="tpill"><div class="tpill-i"></div>Safaricom Certified</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-top">
+        <div class="pt-label">Total Due</div>
+        <div class="pt-amount" id="disp"><span class="cur">KES</span>—</div>
+      </div>
+
+      <div class="panel-body">
+
+        <div class="fg">
+          <label class="flabel">M-Pesa Number</label>
+          <div class="fwrap">
+            <div class="fico"><svg viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><circle cx="12" cy="17" r="1" fill="currentColor"/></svg></div>
+            <input type="tel" id="phone" placeholder="254712345678" maxlength="12"/>
+          </div>
+          <div class="fhint">Format: 254 + 9 digits · Safaricom only</div>
+        </div>
+
+        <div class="fg">
+          <label class="flabel">Quick Select — KES</label>
+          <div class="qa-grid">
+            <button class="qa" onclick="pick(50,this)">50</button>
+            <button class="qa" onclick="pick(100,this)">100</button>
+            <button class="qa" onclick="pick(500,this)">500</button>
+            <button class="qa" onclick="pick(1000,this)">1K</button>
+          </div>
+        </div>
+
+        <div class="divor"><span>or</span></div>
+
+        <div class="fg">
+          <label class="flabel">Custom Amount (KES)</label>
+          <div class="fwrap">
+            <div class="fico"><svg viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+            <input type="number" id="amount" placeholder="0" min="1" oninput="sync()"/>
+          </div>
+        </div>
+
+        <button class="pay-btn" id="btn" onclick="pay()">
+          Send STK Push
+          <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+
+        <div class="status" id="status"></div>
+      </div>
+
+      <div class="panel-foot">
+        <div class="pf-l">
+          <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          SSL Encrypted · Safaricom Certified
+        </div>
+        <div class="pf-r">M-Pesa</div>
+      </div>
+    </div>
+
+  </main>
+
+  <footer class="ftr">
+    <div class="ftr-l">
+      <div class="ftr-creator"><strong>KIMATHI JORAM</strong> — The Creator</div>
+      <div class="ftr-email">celestakim018@gmail.com</div>
+    </div>
+    <div class="ftr-year">© 2026</div>
+  </footer>
+
+</div>
+
+<script>
+function pick(v,el){
+  document.getElementById('amount').value=v;
+  document.querySelectorAll('.qa').forEach(b=>b.classList.remove('on'));
+  el.classList.add('on');sync();
+}
+function sync(){
+  const v=parseInt(document.getElementById('amount').value)||0;
+  document.getElementById('disp').innerHTML=v>0
+    ?'<span class="cur">KES</span>'+v.toLocaleString()
+    :'<span class="cur">KES</span>—';
+}
+async function pay(){
+  const phone=document.getElementById('phone').value.trim();
+  const amount=document.getElementById('amount').value.trim();
+  const btn=document.getElementById('btn');
+  const st=document.getElementById('status');
+  st.className='status';
+  if(!phone){show('Enter your M-Pesa number first.','er');return}
+  if(!phone.startsWith('254')||phone.length!==12){show('Format: 254XXXXXXXXX — 12 digits, Safaricom only.','er');return}
+  if(!amount||parseInt(amount)<1){show('Enter a valid amount.','er');return}
+  btn.disabled=true;
+  btn.innerHTML='<span class="spin"></span> Sending push…';
+  try{
+    const r=await fetch('/api/stk_push',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({phone,amount:parseInt(amount)})});
+    const d=await r.json();
+    if(d.ResponseCode==='0'){show('✓ STK prompt sent. Check your phone and enter your PIN.','ok')}
+    else if(d.error){show(d.error+(d.details?': '+JSON.stringify(d.details):''),'er')}
+    else{show(d.errorMessage||d.ResponseDescription||JSON.stringify(d),'er')}
+  }catch(e){show('⚠ '+e.message,'er')}
+  btn.disabled=false;
+  btn.innerHTML='Send STK Push <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;flex-shrink:0"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
+}
+function show(msg,cls){
+  const st=document.getElementById('status');
+  st.textContent=msg;st.className='status '+cls;
+}
+</script>
+</body>
+<!-- </html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Geopram Technologies — Sales</title>
@@ -318,4 +907,4 @@
     }
   </script>
 </body>
-</html>
+</html> -->
