@@ -3,657 +3,949 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Geopram Pay — M-Pesa</title>
+<title>Geopram Technologies — Pay & Play</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
 :root{
-  --emerald:#0A7D4B;
-  --emerald-mid:#0E9B5C;
-  --emerald-light:#12BB6F;
-  --emerald-pale:#D0F0E1;
-  --emerald-faint:#EBF9F2;
-  --gold:#F0A500;
-  --gold-light:#FFF3CD;
-  --cobalt:#1A3A5C;
-  --cobalt-light:#2A5580;
-  --ink:#0B1F14;
-  --ink2:#1C3828;
-  --muted:#5E7D6A;
-  --muted2:#9BB5A5;
-  --border:#C8E8D8;
-  --border2:#E2F3EB;
-  --surface:#FFFFFF;
-  --bg:#F4FBF7;
-  --radius:20px;
-  --radius-sm:12px;
-  --radius-xs:8px;
+  --g:#00C264;
+  --g2:#00954A;
+  --g3:#006F36;
+  --ink:#050F09;
+  --ink2:#1A2E22;
+  --muted:#5A7A66;
+  --border:rgba(0,194,100,0.18);
+  --border2:rgba(0,194,100,0.35);
+  --bg:#030A05;
+  --surface:#080F0A;
+  --card:#0C1610;
+  --card2:#101B14;
+  --radius:14px;
+  --radius-lg:20px;
 }
 
-html,body{min-height:100%;background:var(--bg);font-family:'Instrument Sans',sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+html,body{min-height:100%;background:var(--bg);font-family:'Space Grotesk',sans-serif;color:#E8F5EC;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 
-/* GRID LAYOUT */
-.layout{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  min-height:100vh;
+/* noise overlay */
+body::after{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  background-size:200px 200px;
+  opacity:.4;
 }
 
-/* ───── LEFT PANEL ───── */
-.panel-left{
-  position:sticky;top:0;height:100vh;
-  background:linear-gradient(160deg, #0A4D2D 0%, #0A7D4B 45%, #0E9B5C 80%, #12C470 100%);
-  display:flex;flex-direction:column;
-  padding:44px 52px;
-  overflow:hidden;
-}
+/* ambient glow */
+.glow-1{position:fixed;top:-200px;right:-100px;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(0,194,100,0.12) 0%,transparent 70%);pointer-events:none;z-index:0}
+.glow-2{position:fixed;bottom:-300px;left:-150px;width:700px;height:700px;border-radius:50%;background:radial-gradient(circle,rgba(0,149,74,0.08) 0%,transparent 65%);pointer-events:none;z-index:0}
 
-/* Decorative blobs */
-.blob{position:absolute;border-radius:50%;pointer-events:none}
-.blob1{width:400px;height:400px;top:-120px;right:-140px;background:rgba(255,255,255,0.05)}
-.blob2{width:300px;height:300px;bottom:-80px;left:-100px;background:rgba(255,255,255,0.04)}
-.blob3{width:180px;height:180px;top:45%;right:-60px;background:rgba(18,196,112,0.15)}
-.grid-lines{
-  position:absolute;inset:0;
-  background-image:
-    linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
-  background-size:48px 48px;
-}
+.wrap{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column}
 
-/* Orbs that float */
-.orb{
-  position:absolute;border-radius:50%;
-  animation:float 8s ease-in-out infinite;
-}
-.orb1{width:90px;height:90px;top:30%;left:-20px;background:rgba(240,165,0,0.18);animation-delay:-2s}
-.orb2{width:50px;height:50px;bottom:25%;right:40px;background:rgba(255,255,255,0.1);animation-delay:-5s}
-@keyframes float{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-18px) scale(1.05)}}
-
-.left-inner{position:relative;z-index:1;display:flex;flex-direction:column;height:100%}
-
-/* Logo */
-.logo-row{display:flex;align-items:center;gap:13px;margin-bottom:auto}
-.logo-mark{
-  width:46px;height:46px;
-  background:rgba(255,255,255,0.15);
-  border:1.5px solid rgba(255,255,255,0.25);
-  border-radius:14px;
-  display:flex;align-items:center;justify-content:center;
-  backdrop-filter:blur(8px);
-}
-.logo-mark svg{width:24px;height:24px;fill:#fff}
-.logo-text .name{font-family:'Syne',sans-serif;font-size:17px;font-weight:800;color:#fff;letter-spacing:-.4px}
-.logo-text .tag{font-size:10.5px;color:rgba(255,255,255,0.55);font-weight:500;letter-spacing:.4px;margin-top:1px}
-
-/* Big amount display */
-.amount-showcase{flex:1;display:flex;flex-direction:column;justify-content:center;padding:40px 0}
-.amount-label{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.5);font-weight:600;margin-bottom:12px}
-.amount-display{
-  font-family:'Syne',sans-serif;
-  font-size:clamp(56px,6vw,80px);
-  font-weight:800;
-  color:#fff;
-  line-height:1;
-  letter-spacing:-3px;
-  margin-bottom:8px;
-}
-.amount-cur{font-size:.38em;font-family:'Instrument Sans',sans-serif;font-weight:600;opacity:.7;vertical-align:super;letter-spacing:0}
-.amount-divider{
-  width:48px;height:3px;
-  background:linear-gradient(90deg,var(--gold),transparent);
-  border-radius:2px;
-  margin:20px 0;
-}
-.amount-to{font-size:14px;color:rgba(255,255,255,0.65);font-weight:500}
-.amount-to strong{color:#fff;font-weight:600}
-
-/* Mpesa badge */
-.mpesa-badge{
-  display:inline-flex;align-items:center;gap:9px;
-  background:rgba(255,255,255,0.12);
-  border:1.5px solid rgba(255,255,255,0.2);
-  border-radius:40px;
-  padding:10px 18px;
-  backdrop-filter:blur(10px);
-  margin-top:14px;
-  width:fit-content;
-}
-.mpesa-dot{width:8px;height:8px;background:var(--gold);border-radius:50%;animation:pulse 2.5s ease infinite}
-.mpesa-badge span{font-size:13px;font-weight:700;color:#fff;letter-spacing:.3px}
-@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(240,165,0,.6)}70%{box-shadow:0 0 0 10px rgba(240,165,0,0)}100%{box-shadow:0 0 0 0 rgba(240,165,0,0)}}
-
-/* Trust pills */
-.trust-pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:36px}
-.tp{
-  display:flex;align-items:center;gap:5px;
-  padding:6px 13px;
-  background:rgba(255,255,255,0.1);
-  border:1px solid rgba(255,255,255,0.15);
-  border-radius:40px;
-  font-size:11px;font-weight:600;color:rgba(255,255,255,0.85);
-}
-.tp svg{width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
-
-/* Left footer */
-.left-footer{font-size:11.5px;color:rgba(255,255,255,0.35);font-weight:500;padding-top:24px;border-top:1px solid rgba(255,255,255,0.1)}
-
-/* ───── RIGHT PANEL ───── */
-.panel-right{
-  background:var(--bg);
-  display:flex;flex-direction:column;
-  padding:44px 52px;
-  overflow-y:auto;
-  min-height:100vh;
-}
-
-.right-header{
+/* ── NAV ── */
+nav{
   display:flex;align-items:center;justify-content:space-between;
-  margin-bottom:36px;
+  padding:20px 40px;
+  border-bottom:1px solid var(--border);
+  backdrop-filter:blur(20px);
+  position:sticky;top:0;z-index:100;
+  background:rgba(3,10,5,0.85);
 }
-.live-badge{
-  display:flex;align-items:center;gap:7px;
-  padding:7px 15px;
-  background:#fff;
-  border:1.5px solid var(--border);
-  border-radius:40px;
-  font-size:11.5px;font-weight:700;color:var(--emerald);
-  box-shadow:0 2px 12px rgba(10,125,75,0.08);
+.nav-logo{display:flex;align-items:center;gap:12px}
+.nav-hex{
+  width:38px;height:38px;
+  background:var(--g);
+  border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 0 24px rgba(0,194,100,0.4);
+  flex-shrink:0;
 }
-.pulse2{width:7px;height:7px;border-radius:50%;background:var(--emerald-light);animation:pulse2 2s ease infinite}
-@keyframes pulse2{0%{box-shadow:0 0 0 0 rgba(18,187,111,.5)}70%{box-shadow:0 0 0 9px rgba(18,187,111,0)}100%{box-shadow:0 0 0 0 rgba(18,187,111,0)}}
+.nav-hex svg{width:20px;height:20px;fill:#000}
+.nav-brand{font-family:'Syne',sans-serif;font-size:17px;font-weight:800;color:#E8F5EC;letter-spacing:-.4px}
+.nav-brand span{color:var(--g)}
+.nav-links{display:flex;align-items:center;gap:8px}
+.nav-link{padding:8px 16px;font-size:13px;font-weight:500;color:var(--muted);border-radius:8px;cursor:pointer;transition:all .2s;border:none;background:none;font-family:inherit}
+.nav-link:hover{color:#E8F5EC;background:rgba(0,194,100,0.08)}
+.nav-link.act{color:var(--g);background:rgba(0,194,100,0.12)}
+.nav-cta{
+  padding:8px 20px;
+  background:var(--g);
+  border:none;border-radius:8px;
+  font-family:'Syne',sans-serif;font-size:13px;font-weight:700;
+  color:#000;cursor:pointer;
+  transition:all .2s;
+  box-shadow:0 0 16px rgba(0,194,100,0.3);
+}
+.nav-cta:hover{background:#00D96E;box-shadow:0 0 24px rgba(0,194,100,0.5)}
 
-.right-title{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--ink);letter-spacing:-.5px}
-.right-subtitle{font-size:13px;color:var(--muted);margin-top:3px}
-
-/* Form card */
-.form-card{
-  background:#fff;
-  border:1.5px solid var(--border2);
-  border-radius:var(--radius);
-  overflow:hidden;
-  box-shadow:0 4px 30px rgba(10,125,75,0.07);
+/* ── HERO BAND ── */
+.hero-band{
+  display:flex;align-items:center;justify-content:center;
+  gap:8px;padding:12px 40px;
+  background:linear-gradient(90deg,transparent,rgba(0,194,100,0.08),transparent);
+  border-bottom:1px solid var(--border);
+  font-size:12px;color:var(--muted);letter-spacing:.5px;
+  overflow:hidden;position:relative;
 }
+.band-dot{width:6px;height:6px;border-radius:50%;background:var(--g);animation:pulse 2s ease infinite;flex-shrink:0}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(0,194,100,.5)}70%{box-shadow:0 0 0 8px rgba(0,194,100,0)}100%{box-shadow:0 0 0 0 rgba(0,194,100,0)}}
 
-.fsec{padding:24px 28px;border-bottom:1.5px solid var(--border2)}
-.fsec:last-child{border-bottom:none}
-
-.fsec-label{
-  font-size:10.5px;font-weight:700;color:var(--muted);
-  letter-spacing:1.2px;text-transform:uppercase;
-  margin-bottom:15px;display:flex;align-items:center;gap:8px;
-}
-.fsec-label .dot{width:5px;height:5px;border-radius:50%;background:var(--emerald-light)}
-
-/* Phone input */
-.phone-field{
-  display:flex;
-  border:1.5px solid var(--border);
-  border-radius:var(--radius-sm);
-  overflow:hidden;
-  transition:border-color .2s,box-shadow .2s;
-}
-.phone-field:focus-within{border-color:var(--emerald-mid);box-shadow:0 0 0 4px rgba(14,155,92,0.12)}
-.phone-prefix{
-  display:flex;align-items:center;gap:6px;
-  padding:0 16px;
-  background:var(--emerald-faint);
-  border-right:1.5px solid var(--border);
-  font-size:13.5px;font-weight:700;color:var(--emerald);
-  white-space:nowrap;flex-shrink:0;
-}
-.phone-flag{font-size:17px}
-.phone-input{
+/* ── MAIN LAYOUT ── */
+.main{
   flex:1;
-  padding:15px 16px;
-  border:none;outline:none;
-  font-family:'Instrument Sans',sans-serif;
-  font-size:16px;font-weight:600;color:var(--ink);
-  background:transparent;
-  -webkit-appearance:none;
-}
-.phone-input::placeholder{color:var(--muted2);font-weight:400;font-size:14px}
-
-.field-note{margin-top:8px;font-size:11.5px;color:var(--muted);display:flex;align-items:center;gap:5px}
-.field-note svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;flex-shrink:0}
-
-/* Amount grid */
-.qa-grid{
   display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:9px;
-  margin-bottom:18px;
+  grid-template-columns:1fr 380px;
+  gap:0;
 }
-.qa{
-  padding:13px 6px 11px;
-  background:var(--emerald-faint);
-  border:1.5px solid var(--border2);
-  border-radius:var(--radius-sm);
-  font-size:13.5px;font-weight:700;color:var(--ink2);
-  text-align:center;cursor:pointer;
-  transition:all .18s cubic-bezier(.22,1,.36,1);
-  -webkit-appearance:none;
-  line-height:1;
+
+/* ── LEFT: PAY SECTION ── */
+.pay-col{
+  padding:48px 40px 60px;
+  border-right:1px solid var(--border);
+}
+
+.section-eyebrow{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:6px 14px;
+  border:1px solid var(--border2);
+  border-radius:40px;
+  font-size:11px;font-weight:600;color:var(--g);
+  letter-spacing:.8px;text-transform:uppercase;
+  background:rgba(0,194,100,0.07);
+  margin-bottom:24px;
+}
+.section-eyebrow svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2}
+
+.pay-headline{
+  font-family:'Syne',sans-serif;
+  font-size:44px;font-weight:800;
+  color:#E8F5EC;line-height:1.05;
+  letter-spacing:-1.5px;
+  margin-bottom:12px;
+}
+.pay-headline em{color:var(--g);font-style:normal}
+.pay-sub{font-size:15px;color:var(--muted);line-height:1.6;max-width:460px;margin-bottom:40px}
+
+/* stats row */
+.stats-row{display:flex;gap:0;margin-bottom:40px;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.stat{
+  flex:1;padding:18px 20px;
+  border-right:1px solid var(--border);
+  background:var(--card);
+  transition:background .2s;
+}
+.stat:last-child{border-right:none}
+.stat:hover{background:var(--card2)}
+.stat-val{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;color:#E8F5EC}
+.stat-val span{color:var(--g)}
+.stat-lbl{font-size:11px;color:var(--muted);font-weight:500;margin-top:3px;letter-spacing:.3px}
+
+/* pay form card */
+.form-card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:var(--radius-lg);
+  overflow:hidden;
+}
+
+/* amount hero */
+.amount-hero{
+  background:linear-gradient(135deg,#011A09 0%,#021205 100%);
+  padding:28px 28px 24px;
+  border-bottom:1px solid var(--border);
   position:relative;overflow:hidden;
 }
-.qa .sub{display:block;font-size:9px;font-weight:600;color:var(--muted);margin-top:3px;letter-spacing:.5px}
-.qa::after{
-  content:'';position:absolute;inset:0;
-  background:linear-gradient(135deg,rgba(10,125,75,0.08),transparent);
-  opacity:0;transition:opacity .2s;
+.amount-hero::before{
+  content:'';position:absolute;top:-60px;right:-60px;
+  width:200px;height:200px;border-radius:50%;
+  background:radial-gradient(circle,rgba(0,194,100,0.15),transparent);
 }
-.qa:hover{border-color:var(--emerald-mid);transform:translateY(-2px);box-shadow:0 4px 12px rgba(10,125,75,0.15)}
-.qa:hover::after{opacity:1}
-.qa.on{
-  background:linear-gradient(135deg,var(--emerald-mid),var(--emerald));
-  border-color:var(--emerald);color:#fff;
-  box-shadow:0 6px 20px rgba(10,125,75,0.35);
-  transform:translateY(-2px);
+.ah-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px}
+.ah-label{font-size:10px;font-weight:600;color:rgba(0,194,100,0.6);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px}
+.ah-amount{
+  font-family:'Syne',sans-serif;font-size:54px;font-weight:800;
+  color:#E8F5EC;line-height:1;letter-spacing:-2px;
 }
-.qa.on .sub{color:rgba(255,255,255,0.7)}
-.qa.on::after{display:none}
+.ah-amount .cur{font-size:18px;font-weight:600;opacity:.7;vertical-align:super;margin-right:4px;letter-spacing:0}
+.stk-badge{
+  background:rgba(0,194,100,0.15);
+  border:1px solid rgba(0,194,100,0.3);
+  border-radius:8px;padding:8px 14px;
+  font-size:11px;font-weight:700;color:var(--g);letter-spacing:.5px;
+}
+.ah-bottom{display:flex;justify-content:space-between;align-items:flex-end}
+.ah-dest{font-size:13px;color:rgba(232,245,236,0.5)}
+.ah-dest strong{color:#E8F5EC}
+.mpesa-badge{
+  display:flex;align-items:center;gap:7px;
+  background:rgba(0,194,100,0.1);
+  border:1px solid rgba(0,194,100,0.2);
+  border-radius:8px;padding:6px 12px;
+}
+.mpesa-badge span{font-size:13px;font-weight:700;color:#E8F5EC}
+.m-dot{width:10px;height:10px;background:var(--g);border-radius:50%}
 
-/* Divider */
-.divider{
-  display:flex;align-items:center;gap:12px;
-  margin:2px 0 18px;
-}
-.divider::before,.divider::after{content:'';flex:1;height:1.5px;background:var(--border2)}
-.divider span{font-size:10.5px;color:var(--muted2);font-weight:700;letter-spacing:.8px;text-transform:uppercase}
+/* form inner */
+.form-inner{padding:24px 28px}
 
-/* Custom amount input */
+.field-group{margin-bottom:22px}
+.field-label{
+  font-size:11px;font-weight:600;color:var(--muted);
+  letter-spacing:.8px;text-transform:uppercase;
+  margin-bottom:10px;display:flex;align-items:center;gap:6px;
+}
+.field-label svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2}
+
+/* phone input */
+.phone-row{display:flex;border:1px solid rgba(0,194,100,0.2);border-radius:var(--radius);overflow:hidden;transition:border-color .2s}
+.phone-row:focus-within{border-color:var(--g);box-shadow:0 0 0 3px rgba(0,194,100,0.12)}
+.prefix-box{
+  display:flex;align-items:center;gap:6px;padding:0 16px;
+  background:rgba(0,194,100,0.08);border-right:1px solid rgba(0,194,100,0.2);
+  font-size:14px;font-weight:700;color:var(--g);flex-shrink:0;min-width:90px;
+  white-space:nowrap;
+}
+.flag{font-size:17px}
+.phone-input{
+  flex:1;padding:14px 16px;
+  background:transparent;border:none;outline:none;
+  font-family:'Space Grotesk',sans-serif;
+  font-size:16px;font-weight:600;color:#E8F5EC;
+}
+.phone-input::placeholder{color:rgba(90,122,102,0.6);font-weight:400}
+
+/* quick amounts */
+.qa-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}
+.qa{
+  padding:12px 6px;
+  background:rgba(0,194,100,0.05);
+  border:1px solid rgba(0,194,100,0.15);
+  border-radius:10px;
+  font-size:13px;font-weight:700;color:rgba(232,245,236,0.7);
+  text-align:center;cursor:pointer;
+  transition:all .18s;font-family:'Space Grotesk',sans-serif;
+  line-height:1.1;
+}
+.qa .sub{display:block;font-size:9px;font-weight:500;color:rgba(90,122,102,0.8);margin-top:2px;letter-spacing:.3px}
+.qa:hover{border-color:var(--g);color:var(--g);background:rgba(0,194,100,0.1)}
+.qa.on{background:var(--g);border-color:var(--g);color:#000;box-shadow:0 0 18px rgba(0,194,100,0.35)}
+.qa.on .sub{color:rgba(0,0,0,0.55)}
+
+.divider{display:flex;align-items:center;gap:10px;margin:4px 0 16px}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.divider span{font-size:10px;color:var(--muted);font-weight:600;letter-spacing:.8px;text-transform:uppercase}
+
 .custom-wrap{position:relative}
 .custom-prefix{
   position:absolute;left:14px;top:50%;transform:translateY(-50%);
-  font-size:13px;font-weight:700;color:var(--muted);pointer-events:none;
-  font-family:'Syne',sans-serif;
+  font-size:13px;font-weight:600;color:var(--muted);pointer-events:none;
 }
 .custom-input{
-  width:100%;
-  padding:15px 16px 15px 62px;
-  border:1.5px solid var(--border);
-  border-radius:var(--radius-sm);
-  font-family:'Syne',sans-serif;
-  font-size:17px;font-weight:700;color:var(--ink);
-  background:#fff;outline:none;
-  transition:border-color .2s,box-shadow .2s;
-  -webkit-appearance:none;
-  letter-spacing:-.3px;
+  width:100%;padding:14px 16px 14px 52px;
+  background:rgba(0,194,100,0.05);
+  border:1px solid rgba(0,194,100,0.15);
+  border-radius:var(--radius);
+  font-family:'Space Grotesk',sans-serif;
+  font-size:16px;font-weight:600;color:#E8F5EC;outline:none;
+  transition:border-color .2s,box-shadow .2s;-webkit-appearance:none;
 }
 .custom-input::-webkit-inner-spin-button,.custom-input::-webkit-outer-spin-button{-webkit-appearance:none}
-.custom-input::placeholder{color:var(--muted2);font-weight:400;font-size:14px;letter-spacing:0;font-family:'Instrument Sans',sans-serif}
-.custom-input:focus{border-color:var(--emerald-mid);box-shadow:0 0 0 4px rgba(14,155,92,0.12)}
+.custom-input::placeholder{color:rgba(90,122,102,0.5);font-weight:400;font-size:14px}
+.custom-input:focus{border-color:var(--g);box-shadow:0 0 0 3px rgba(0,194,100,0.12)}
 
-/* Pay button */
-.pay-wrap{padding:24px 28px}
+/* pay btn */
 .pay-btn{
   width:100%;
   padding:18px 24px;
-  background:linear-gradient(135deg, #0E9B5C 0%, #0A7D4B 60%, #08643C 100%);
-  border:none;border-radius:14px;
+  background:var(--g);
+  border:none;border-radius:12px;
   font-family:'Syne',sans-serif;
-  font-size:15px;font-weight:800;color:#fff;
-  letter-spacing:.3px;cursor:pointer;
+  font-size:15px;font-weight:800;color:#000;
+  letter-spacing:.2px;cursor:pointer;
   display:flex;align-items:center;justify-content:center;gap:10px;
-  position:relative;overflow:hidden;
-  box-shadow:0 8px 28px rgba(10,125,75,0.42);
-  transition:transform .18s,box-shadow .18s;
-  -webkit-appearance:none;
+  transition:all .18s;margin-top:4px;
+  box-shadow:0 0 28px rgba(0,194,100,0.35);
 }
-.pay-btn::before{
-  content:'';position:absolute;
-  top:-50%;left:-60%;
-  width:180%;height:200%;
-  background:linear-gradient(105deg,rgba(255,255,255,0) 40%,rgba(255,255,255,0.12) 50%,rgba(255,255,255,0) 60%);
-  transform:translateX(-100%);
-  transition:transform .6s;
-}
-.pay-btn:hover:not(:disabled)::before{transform:translateX(60%)}
-.pay-btn:hover:not(:disabled){transform:translateY(-3px);box-shadow:0 14px 40px rgba(10,125,75,0.52)}
+.pay-btn:hover:not(:disabled){background:#00D96E;transform:translateY(-2px);box-shadow:0 0 40px rgba(0,194,100,0.5)}
 .pay-btn:active:not(:disabled){transform:scale(0.99)}
-.pay-btn:disabled{opacity:.45;cursor:not-allowed}
-.pay-icon{
-  width:36px;height:36px;
-  background:rgba(255,255,255,0.15);
-  border-radius:10px;
-  display:flex;align-items:center;justify-content:center;
-  transition:transform .2s;
-}
-.pay-btn:hover:not(:disabled) .pay-icon{transform:translateX(3px)}
-.pay-icon svg{width:18px;height:18px;stroke:#fff;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.pay-btn:disabled{opacity:.4;cursor:not-allowed}
+.pay-btn svg{width:18px;height:18px;stroke:#000;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;transition:transform .2s}
+.pay-btn:hover:not(:disabled) svg{transform:translateX(4px)}
 
-.spin{
-  display:inline-block;width:20px;height:20px;
-  border:2.5px solid rgba(255,255,255,0.3);
-  border-top-color:#fff;border-radius:50%;
-  animation:rot .65s linear infinite;
-}
+.spin{display:inline-block;width:18px;height:18px;border:2px solid rgba(0,0,0,0.3);border-top-color:#000;border-radius:50%;animation:rot .65s linear infinite;flex-shrink:0}
 @keyframes rot{to{transform:rotate(360deg)}}
 
-/* Status */
-.status-box{
-  margin-top:14px;
-  border-radius:var(--radius-sm);
-  padding:15px 18px;
-  font-size:13px;font-weight:500;line-height:1.6;
-  display:none;align-items:flex-start;gap:10px;
-}
-.status-box.ok{display:flex;background:#E8F9F0;border:1.5px solid #7FD4A5;color:#085A2E}
-.status-box.er{display:flex;background:#FDF1F1;border:1.5px solid #F5ABAB;color:#8B1A1A}
-.status-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.status-box.ok .status-icon{background:#C5EDD8}
-.status-box.er .status-icon{background:#FADCDC}
-.status-box svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.status-msg{font-size:13px;line-height:1.6}
-.status-msg strong{display:block;font-weight:700;margin-bottom:2px}
+.status-box{margin-top:14px;border-radius:10px;padding:14px 16px;font-size:13px;line-height:1.6;display:none}
+.status-box.ok{display:flex;background:rgba(0,194,100,0.1);border:1px solid rgba(0,194,100,0.3);color:var(--g)}
+.status-box.er{display:flex;background:rgba(220,38,38,0.1);border:1px solid rgba(220,38,38,0.3);color:#F87171}
+.status-box svg{width:16px;height:16px;flex-shrink:0;margin-top:1px;margin-right:8px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 
-/* Bottom meta */
-.right-footer{
-  margin-top:28px;
+/* trust */
+.trust-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:20px}
+.trust-chip{
+  display:flex;align-items:center;gap:5px;padding:5px 12px;
+  background:rgba(0,194,100,0.06);
+  border:1px solid rgba(0,194,100,0.15);
+  border-radius:40px;
+  font-size:11px;font-weight:600;color:var(--muted);
+}
+.trust-chip svg{width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2}
+
+/* ── RIGHT: GAME SECTION ── */
+.game-col{
+  display:flex;flex-direction:column;
+  background:var(--surface);
+  overflow:hidden;
+}
+
+.game-header{
+  padding:24px 24px 0;
+}
+.game-eyebrow{
+  font-size:10px;font-weight:600;color:var(--muted);letter-spacing:1px;text-transform:uppercase;
+  margin-bottom:6px;display:flex;align-items:center;gap:6px;
+}
+.game-eyebrow::before{content:'';width:18px;height:1px;background:rgba(0,194,100,0.4)}
+.game-title{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:#E8F5EC;letter-spacing:-.4px;line-height:1.1;margin-bottom:4px}
+.game-sub{font-size:12px;color:var(--muted)}
+
+/* filter tabs */
+.filter-tabs{display:flex;gap:6px;padding:16px 24px 0;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.filter-tabs::-webkit-scrollbar{display:none}
+.ftab{
+  padding:6px 14px;border-radius:40px;
+  font-size:12px;font-weight:600;color:var(--muted);
+  background:transparent;border:1px solid rgba(0,194,100,0.12);
+  cursor:pointer;white-space:nowrap;transition:all .18s;font-family:inherit;
+  flex-shrink:0;
+}
+.ftab:hover{color:#E8F5EC;border-color:rgba(0,194,100,0.3)}
+.ftab.act{background:rgba(0,194,100,0.12);border-color:var(--g);color:var(--g)}
+
+/* scroll area */
+.game-scroll{flex:1;overflow-y:auto;padding:16px 24px 24px}
+.game-scroll::-webkit-scrollbar{width:4px}
+.game-scroll::-webkit-scrollbar-track{background:transparent}
+.game-scroll::-webkit-scrollbar-thumb{background:rgba(0,194,100,0.2);border-radius:4px}
+
+/* featured game */
+.featured-game{
+  background:linear-gradient(135deg,#0A2016,#071009);
+  border:1px solid rgba(0,194,100,0.2);
+  border-radius:var(--radius-lg);
+  padding:20px;
+  margin-bottom:16px;
+  position:relative;overflow:hidden;
+  cursor:pointer;transition:border-color .2s;
+}
+.featured-game:hover{border-color:rgba(0,194,100,0.45)}
+.featured-game::before{
+  content:'';position:absolute;top:-40px;right:-40px;
+  width:140px;height:140px;border-radius:50%;
+  background:radial-gradient(circle,rgba(0,194,100,0.12),transparent);
+}
+.fg-badge{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:3px 10px;border-radius:40px;
+  font-size:10px;font-weight:700;letter-spacing:.5px;
+  text-transform:uppercase;margin-bottom:12px;
+}
+.fg-badge.hot{background:rgba(239,68,68,0.2);color:#F87171;border:1px solid rgba(239,68,68,0.3)}
+.fg-badge.new{background:rgba(0,194,100,0.15);color:var(--g);border:1px solid rgba(0,194,100,0.3)}
+.fg-badge.sale{background:rgba(245,158,11,0.15);color:#FCD34D;border:1px solid rgba(245,158,11,0.3)}
+.fg-icon{font-size:40px;margin-bottom:10px;display:block}
+.fg-name{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:#E8F5EC;margin-bottom:4px;letter-spacing:-.3px}
+.fg-desc{font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:14px}
+.fg-bottom{display:flex;justify-content:space-between;align-items:center}
+.fg-price{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--g)}
+.fg-price .per{font-size:11px;color:var(--muted);font-family:'Space Grotesk',sans-serif;font-weight:400}
+.fg-btn{
+  padding:9px 18px;background:var(--g);
+  border:none;border-radius:8px;
+  font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:#000;
+  cursor:pointer;transition:all .18s;
+}
+.fg-btn:hover{background:#00D96E;transform:translateY(-1px)}
+
+/* game items */
+.game-item{
+  display:flex;align-items:center;gap:14px;
+  padding:14px;
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  margin-bottom:10px;cursor:pointer;
+  transition:all .18s;
+}
+.game-item:hover{background:var(--card2);border-color:rgba(0,194,100,0.3);transform:translateX(3px)}
+.gi-emoji{font-size:26px;width:48px;height:48px;background:rgba(0,194,100,0.07);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.gi-body{flex:1;min-width:0}
+.gi-name{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:#E8F5EC;letter-spacing:-.2px;margin-bottom:2px}
+.gi-meta{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:8px}
+.gi-tag{
+  padding:2px 7px;border-radius:4px;
+  font-size:10px;font-weight:700;letter-spacing:.3px;
+}
+.gi-tag.fps{background:rgba(239,68,68,0.15);color:#F87171}
+.gi-tag.rpg{background:rgba(139,92,246,0.15);color:#C4B5FD}
+.gi-tag.str{background:rgba(245,158,11,0.15);color:#FCD34D}
+.gi-tag.sprt{background:rgba(59,130,246,0.15);color:#93C5FD}
+.gi-tag.adv{background:rgba(34,197,94,0.15);color:#86EFAC}
+.gi-tag.rac{background:rgba(236,72,153,0.15);color:#F9A8D4}
+.gi-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0}
+.gi-price{font-family:'Syne',sans-serif;font-size:15px;font-weight:800;color:#E8F5EC}
+.gi-old{font-size:11px;color:var(--muted);text-decoration:line-through}
+.gi-buy{
+  padding:5px 12px;background:rgba(0,194,100,0.12);
+  border:1px solid rgba(0,194,100,0.25);border-radius:6px;
+  font-size:11px;font-weight:700;color:var(--g);
+  cursor:pointer;transition:all .15s;font-family:inherit;
+}
+.gi-buy:hover{background:rgba(0,194,100,0.22)}
+
+/* ── BOTTOM: TECH SECTION ── */
+.tech-section{
+  border-top:1px solid var(--border);
+  padding:48px 40px 60px;
+  display:grid;grid-template-columns:1fr 1fr;gap:40px;
+  align-items:start;
+}
+.tech-left{}
+.tech-eyebrow{
+  font-size:10px;font-weight:600;color:var(--g);letter-spacing:1.2px;text-transform:uppercase;
+  margin-bottom:16px;display:flex;align-items:center;gap:8px;
+}
+.tech-eyebrow::after{content:'';flex:1;max-width:60px;height:1px;background:rgba(0,194,100,0.3)}
+.tech-headline{
+  font-family:'Syne',sans-serif;
+  font-size:36px;font-weight:800;color:#E8F5EC;
+  line-height:1.08;letter-spacing:-1px;margin-bottom:16px;
+}
+.tech-headline em{color:var(--g);font-style:normal}
+.tech-desc{font-size:14px;color:var(--muted);line-height:1.7;margin-bottom:28px}
+
+.services-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.srv{
+  padding:16px;
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  transition:all .2s;cursor:pointer;
+}
+.srv:hover{background:var(--card2);border-color:rgba(0,194,100,0.35);transform:translateY(-2px)}
+.srv-icon{font-size:22px;margin-bottom:10px}
+.srv-name{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:#E8F5EC;margin-bottom:3px}
+.srv-desc{font-size:11px;color:var(--muted);line-height:1.4}
+
+.tech-right{display:flex;flex-direction:column;gap:14px;padding-top:8px}
+.client-card{
+  display:flex;align-items:center;gap:14px;
+  padding:16px 20px;
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  transition:border-color .2s;
+}
+.client-card:hover{border-color:rgba(0,194,100,0.3)}
+.cc-avatar{
+  width:42px;height:42px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;flex-shrink:0;
+}
+.cc-body{flex:1}
+.cc-name{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:#E8F5EC;margin-bottom:2px}
+.cc-role{font-size:11px;color:var(--muted)}
+.cc-check{
+  width:24px;height:24px;background:rgba(0,194,100,0.12);
+  border:1px solid rgba(0,194,100,0.25);
+  border-radius:50%;display:flex;align-items:center;justify-content:center;
+}
+.cc-check svg{width:12px;height:12px;stroke:var(--g);fill:none;stroke-width:2.5}
+
+.cta-bar{
+  display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;
+  margin-top:4px;padding:20px 24px;
+  background:linear-gradient(90deg,rgba(0,194,100,0.08),rgba(0,194,100,0.04));
+  border:1px solid rgba(0,194,100,0.2);border-radius:var(--radius);
+}
+.cta-text{font-size:14px;color:rgba(232,245,236,0.8);font-weight:500}
+.cta-text strong{color:#E8F5EC}
+.cta-actions{display:flex;gap:8px}
+.btn-outline{
+  padding:10px 20px;
+  background:transparent;
+  border:1px solid rgba(0,194,100,0.3);border-radius:8px;
+  font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:600;color:var(--g);
+  cursor:pointer;transition:all .18s;
+}
+.btn-outline:hover{background:rgba(0,194,100,0.1)}
+.btn-solid{
+  padding:10px 20px;background:var(--g);
+  border:none;border-radius:8px;
+  font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:#000;
+  cursor:pointer;transition:all .18s;box-shadow:0 0 16px rgba(0,194,100,0.3);
+}
+.btn-solid:hover{background:#00D96E}
+
+/* ── FOOTER ── */
+footer{
+  border-top:1px solid var(--border);
+  padding:24px 40px;
   display:flex;align-items:center;justify-content:space-between;
-  flex-wrap:wrap;gap:10px;
+  flex-wrap:wrap;gap:12px;
 }
-.rf-secure{display:flex;align-items:center;gap:5px;font-size:11.5px;color:var(--muted);font-weight:500}
-.rf-secure svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;flex-shrink:0}
-.rf-creator{text-align:right}
-.rf-creator .by{font-size:12px;color:var(--muted)}
-.rf-creator .by strong{color:var(--ink);font-weight:700}
-.rf-creator .email{font-size:11px;color:var(--emerald-mid);margin-top:1px}
+.foot-left{font-size:12px;color:var(--muted)}
+.foot-left strong{color:#E8F5EC}
+.foot-left a{color:var(--g);text-decoration:none}
+.foot-links{display:flex;gap:16px}
+.foot-links span{font-size:12px;color:var(--muted);cursor:pointer;transition:color .2s}
+.foot-links span:hover{color:#E8F5EC}
+.foot-right{font-size:11px;color:rgba(90,122,102,0.5);font-weight:600;letter-spacing:.5px}
 
-/* Animations */
-@keyframes slideIn{from{opacity:0;transform:translateX(32px)}to{opacity:1;transform:translateX(0)}}
-@keyframes fadeUp{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
-@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+/* animations */
+@keyframes up{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+nav{animation:up .4s ease both}
+.hero-band{animation:up .45s .05s ease both}
+.pay-col .section-eyebrow{animation:up .5s .1s ease both}
+.pay-headline{animation:up .5s .15s ease both}
+.stats-row{animation:up .5s .2s ease both}
+.form-card{animation:up .5s .25s ease both}
+.game-col{animation:up .5s .3s ease both}
 
-.panel-left .left-inner{animation:fadeIn .8s ease both}
-.panel-right{animation:slideIn .7s cubic-bezier(.22,1,.36,1) both}
-.right-header{animation:fadeUp .7s .1s cubic-bezier(.22,1,.36,1) both}
-.form-card{animation:fadeUp .7s .18s cubic-bezier(.22,1,.36,1) both}
-.right-footer{animation:fadeUp .7s .28s cubic-bezier(.22,1,.36,1) both}
-
-/* ─── MOBILE ─── */
-@media(max-width:768px){
-  .layout{grid-template-columns:1fr}
-
-  .panel-left{
-    position:static;height:auto;
-    padding:30px 24px 36px;
-    border-radius:0 0 28px 28px;
-  }
-  .amount-showcase{padding:28px 0 20px;flex:none}
-  .amount-display{font-size:clamp(48px,12vw,64px)}
-  .trust-pills{display:none}
-  .left-footer{display:none}
-  .logo-row{margin-bottom:0}
-
-  .panel-right{
-    padding:28px 20px 40px;
-    min-height:auto;
-  }
-  .right-header{margin-bottom:22px}
-  .right-title{font-size:18px}
-  .fsec{padding:20px}
-  .pay-wrap{padding:20px}
-  .qa-grid{grid-template-columns:repeat(4,1fr);gap:7px}
-  .qa{font-size:12.5px;padding:11px 4px 9px}
-  .right-footer{justify-content:center;text-align:center}
-  .rf-creator{text-align:center}
-
-  .panel-left{animation:fadeIn .6s ease both}
-  .panel-right{animation:fadeUp .7s .15s cubic-bezier(.22,1,.36,1) both}
-}
-
-@media(max-width:400px){
-  .qa-grid{grid-template-columns:repeat(4,1fr)}
-  .qa{font-size:11px;padding:9px 2px 8px}
-  .amount-display{font-size:44px;letter-spacing:-2px}
+@media(max-width:900px){
+  .main{grid-template-columns:1fr}
+  .game-col{border-right:none;border-top:1px solid var(--border)}
+  .tech-section{grid-template-columns:1fr}
+  nav{padding:16px 20px}
+  .nav-links{display:none}
+  .pay-col{padding:32px 20px 40px}
+  .tech-section{padding:32px 20px 40px}
+  footer{padding:20px}
 }
 </style>
 </head>
 <body>
+<div class="glow-1"></div>
+<div class="glow-2"></div>
+<div class="wrap">
 
-<div class="layout">
-
-  <!-- ─── LEFT PANEL ─── -->
-  <div class="panel-left">
-    <div class="grid-lines"></div>
-    <div class="blob blob1"></div>
-    <div class="blob blob2"></div>
-    <div class="blob blob3"></div>
-    <div class="orb orb1"></div>
-    <div class="orb orb2"></div>
-
-    <div class="left-inner">
-
-      <div class="logo-row">
-        <div class="logo-mark">
-          <svg viewBox="0 0 24 24"><path d="M12 2L3 7v10l9 5 9-5V7L12 2z"/></svg>
-        </div>
-        <div class="logo-text">
-          <div class="name">Geopram</div>
-          <div class="tag">TECHNOLOGIES · NAIROBI</div>
-        </div>
-      </div>
-
-      <div class="amount-showcase">
-        <div class="amount-label">Total Due</div>
-        <div class="amount-display">
-          <span class="amount-cur">KES</span><span id="hero-val">0</span>
-        </div>
-        <div class="amount-divider"></div>
-        <div class="amount-to">Paying to: <strong>Geopram Technologies</strong></div>
-
-        <div class="mpesa-badge">
-          <div class="mpesa-dot"></div>
-          <span>M-PESA STK Push</span>
-        </div>
-      </div>
-
-      <div class="trust-pills">
-        <div class="tp">
-          <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
-          SSL Encrypted
-        </div>
-        <div class="tp">
-          <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-          Merchant Verified
-        </div>
-        <div class="tp">
-          <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-          CBK Approved
-        </div>
-        <div class="tp">
-          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-          Instant Confirmation
-        </div>
-      </div>
-
-      <div class="left-footer">
-        256-bit TLS · Powered by Safaricom M-Pesa API © 2026
-      </div>
-
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    <div class="nav-hex">
+      <svg viewBox="0 0 24 24"><path d="M12 2L3 7v10l9 5 9-5V7L12 2z"/></svg>
+    </div>
+    <div>
+      <div class="nav-brand">Geo<span>pram</span></div>
+      <div style="font-size:10px;color:var(--muted);letter-spacing:.5px">Technologies · Nairobi</div>
     </div>
   </div>
+  <div class="nav-links">
+    <button class="nav-link act">Payments</button>
+    <button class="nav-link">Gaming</button>
+    <button class="nav-link">Services</button>
+    <button class="nav-link">About</button>
+    <button class="nav-link">Contact</button>
+  </div>
+  <button class="nav-cta">Get Started →</button>
+</nav>
 
-  <!-- ─── RIGHT PANEL ─── -->
-  <div class="panel-right">
+<!-- LIVE BAND -->
+<div class="hero-band">
+  <div class="band-dot"></div>
+  Safaricom M-Pesa STK Push · Real-time · Merchant Verified · Serving Nairobi & beyond
+</div>
 
-    <div class="right-header">
-      <div>
-        <div class="right-title">Complete Payment</div>
-        <div class="right-subtitle">Enter your M-Pesa details below</div>
+<!-- MAIN: 2-col grid -->
+<div class="main">
+
+  <!-- LEFT: PAYMENT -->
+  <div class="pay-col">
+    <div class="section-eyebrow">
+      <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      Secure M-Pesa Payments
+    </div>
+    <div class="pay-headline">Pay Instantly<br>with <em>M-Pesa</em></div>
+    <div class="pay-sub">Experience frictionless Safaricom STK Push payments. Enter your number, confirm on your phone — done in seconds.</div>
+
+    <!-- stats -->
+    <div class="stats-row">
+      <div class="stat">
+        <div class="stat-val"><span>99</span>.9%</div>
+        <div class="stat-lbl">Uptime SLA</div>
       </div>
-      <div class="live-badge">
-        <div class="pulse2"></div>
-        Systems Live
+      <div class="stat">
+        <div class="stat-val"><span>3</span>s</div>
+        <div class="stat-lbl">Avg. Push Time</div>
+      </div>
+      <div class="stat">
+        <div class="stat-val"><span>10k+</span></div>
+        <div class="stat-lbl">Transactions</div>
       </div>
     </div>
 
+    <!-- FORM CARD -->
     <div class="form-card">
-
-      <!-- Phone -->
-      <div class="fsec">
-        <div class="fsec-label"><div class="dot"></div>M-Pesa Phone Number</div>
-        <div class="phone-field">
-          <div class="phone-prefix">
-            <span class="phone-flag">🇰🇪</span>
-            +254
+      <!-- amount hero -->
+      <div class="amount-hero">
+        <div class="ah-top">
+          <div>
+            <div class="ah-label">Total Due</div>
+            <div class="ah-amount"><span class="cur">KES</span><span id="disp-val">0</span></div>
           </div>
-          <input class="phone-input" type="tel" id="phone" placeholder="7XX XXX XXX" maxlength="9" inputmode="numeric" oninput="buildPhone(this)" aria-label="M-Pesa phone number"/>
+          <div class="stk-badge">STK Push</div>
         </div>
-        <div class="field-note">
-          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
-          Safaricom lines only · Enter 9 digits after +254
+        <div class="ah-bottom">
+          <div class="ah-dest">Pay to: <strong>Geopram Tech.</strong></div>
+          <div class="mpesa-badge"><div class="m-dot"></div><span>M-PESA</span></div>
         </div>
       </div>
 
-      <!-- Amount -->
-      <div class="fsec">
-        <div class="fsec-label"><div class="dot"></div>Select Amount — KES</div>
-        <div class="qa-grid">
-          <button class="qa" onclick="pick(50,this)">50<span class="sub">KES</span></button>
-          <button class="qa" onclick="pick(100,this)">100<span class="sub">KES</span></button>
-          <button class="qa" onclick="pick(250,this)">250<span class="sub">KES</span></button>
-          <button class="qa" onclick="pick(500,this)">500<span class="sub">KES</span></button>
-          <button class="qa" onclick="pick(1000,this)">1K<span class="sub">KES</span></button>
-          <button class="qa" onclick="pick(2500,this)">2.5K<span class="sub">KES</span></button>
-          <button class="qa" onclick="pick(5000,this)">5K<span class="sub">KES</span></button>
-          <button class="qa" onclick="pick(10000,this)">10K<span class="sub">KES</span></button>
-        </div>
-
-        <div class="divider"><span>or enter custom</span></div>
-
-        <div class="custom-wrap">
-          <div class="custom-prefix">KES</div>
-          <input class="custom-input" type="number" id="amount" placeholder="Enter amount" min="1" inputmode="decimal" oninput="sync()" aria-label="Custom amount in KES"/>
-        </div>
-      </div>
-
-      <!-- Pay -->
-      <div class="pay-wrap">
-        <button class="pay-btn" id="btn" onclick="pay()" aria-label="Send STK Push">
-          <span id="btn-text">Send STK Push</span>
-          <div class="pay-icon" id="btn-icon">
-            <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      <!-- form inner -->
+      <div class="form-inner">
+        <!-- phone -->
+        <div class="field-group">
+          <div class="field-label">
+            <svg viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><circle cx="12" cy="17" r="1" fill="currentColor" stroke="none"/></svg>
+            M-Pesa Number
           </div>
+          <div class="phone-row">
+            <div class="prefix-box"><span class="flag">🇰🇪</span> +254</div>
+            <input class="phone-input" type="tel" id="phone" placeholder="7XX XXX XXX" maxlength="9" oninput="buildPhone(this)"/>
+          </div>
+        </div>
+
+        <!-- amounts -->
+        <div class="field-group">
+          <div class="field-label">
+            <svg viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+            Select Amount — KES
+          </div>
+          <div class="qa-grid">
+            <button class="qa" onclick="pick(50,this)">50<span class="sub">KES</span></button>
+            <button class="qa" onclick="pick(100,this)">100<span class="sub">KES</span></button>
+            <button class="qa" onclick="pick(250,this)">250<span class="sub">KES</span></button>
+            <button class="qa" onclick="pick(500,this)">500<span class="sub">KES</span></button>
+            <button class="qa" onclick="pick(1000,this)">1k<span class="sub">KES</span></button>
+            <button class="qa" onclick="pick(2500,this)">2.5k<span class="sub">KES</span></button>
+            <button class="qa" onclick="pick(5000,this)">5k<span class="sub">KES</span></button>
+            <button class="qa" onclick="pick(10000,this)">10k<span class="sub">KES</span></button>
+          </div>
+
+          <div class="divider"><span>or custom</span></div>
+          <div class="custom-wrap">
+            <div class="custom-prefix">KES</div>
+            <input class="custom-input" type="number" id="amount" placeholder="Enter custom amount" min="1" oninput="sync()"/>
+          </div>
+        </div>
+
+        <!-- pay btn -->
+        <button class="pay-btn" id="btn" onclick="pay()">
+          Send STK Push
+          <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </button>
-        <div class="status-box" id="status" role="alert" aria-live="polite">
-          <div class="status-icon">
-            <svg id="st-icon" viewBox="0 0 24 24"></svg>
-          </div>
-          <div class="status-msg">
-            <strong id="st-title"></strong>
-            <span id="st-text"></span>
-          </div>
+
+        <div class="status-box" id="status">
+          <svg id="st-icon" viewBox="0 0 24 24"></svg>
+          <span id="st-text"></span>
+        </div>
+
+        <!-- trust -->
+        <div class="trust-row">
+          <div class="trust-chip"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>256-bit SSL</div>
+          <div class="trust-chip"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Verified Merchant</div>
+          <div class="trust-chip"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Bank Approved</div>
+          <div class="trust-chip">🇰🇪 Nairobi HQ</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: GAMING -->
+  <div class="game-col">
+    <div class="game-header">
+      <div class="game-eyebrow">Game Store</div>
+      <div class="game-title">Top Gaming Items</div>
+      <div class="game-sub">Pay with M-Pesa instantly</div>
+    </div>
+
+    <div class="filter-tabs">
+      <button class="ftab act">All</button>
+      <button class="ftab">FPS</button>
+      <button class="ftab">RPG</button>
+      <button class="ftab">Sports</button>
+      <button class="ftab">Strategy</button>
+      <button class="ftab">Racing</button>
+    </div>
+
+    <div class="game-scroll">
+
+      <!-- Featured -->
+      <div class="featured-game">
+        <div class="fg-badge hot">🔥 Trending</div>
+        <div class="fg-icon">🎮</div>
+        <div class="fg-name">Apex Legends — Season Pass</div>
+        <div class="fg-desc">Unlock all Battle Pass rewards, exclusive skins, and 1,000 Apex Coins for the ultimate experience.</div>
+        <div class="fg-bottom">
+          <div class="fg-price">KES 1,200 <span class="per">/ season</span></div>
+          <button class="fg-btn" onclick="autofill(1200)">Buy Now →</button>
         </div>
       </div>
 
-    </div>
-
-    <div class="right-footer">
-      <div class="rf-secure">
-        <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
-        256-bit SSL · Secure M-Pesa Gateway
+      <!-- Game items -->
+      <div class="game-item" onclick="autofill(800)">
+        <div class="gi-emoji">🔫</div>
+        <div class="gi-body">
+          <div class="gi-name">Call of Duty — 5,000 CP</div>
+          <div class="gi-meta"><span class="gi-tag fps">FPS</span> CoD Points Bundle</div>
+        </div>
+        <div class="gi-right">
+          <div class="gi-price">KES 800</div>
+          <div class="gi-old">KES 1,000</div>
+          <button class="gi-buy">Pay M-Pesa</button>
+        </div>
       </div>
-      <div class="rf-creator">
-        <div class="by">Built by <strong>Kimathi Joram</strong></div>
-        <div class="email">celestakim018@gmail.com</div>
-      </div>
-    </div>
 
+      <div class="game-item" onclick="autofill(500)">
+        <div class="gi-emoji">⚽</div>
+        <div class="gi-body">
+          <div class="gi-name">FC 25 — Ultimate Team Pack</div>
+          <div class="gi-meta"><span class="gi-tag sprt">Sports</span> 1,600 FC Points</div>
+        </div>
+        <div class="gi-right">
+          <div class="gi-price">KES 500</div>
+          <button class="gi-buy">Pay M-Pesa</button>
+        </div>
+      </div>
+
+      <div class="game-item" onclick="autofill(2500)">
+        <div class="gi-emoji">🧙</div>
+        <div class="gi-body">
+          <div class="gi-name">Elden Ring — DLC Shadow</div>
+          <div class="gi-meta"><span class="gi-tag rpg">RPG</span> Full DLC Access</div>
+        </div>
+        <div class="gi-right">
+          <div class="gi-price">KES 2,500</div>
+          <button class="gi-buy">Pay M-Pesa</button>
+        </div>
+      </div>
+
+      <div class="game-item" onclick="autofill(350)">
+        <div class="gi-emoji">🍊</div>
+        <div class="gi-body">
+          <div class="gi-name">Fortnite — 2,800 V-Bucks</div>
+          <div class="gi-meta"><span class="gi-tag adv">Battle Royale</span> V-Bucks</div>
+        </div>
+        <div class="gi-right">
+          <div class="gi-price">KES 350</div>
+          <button class="gi-buy">Pay M-Pesa</button>
+        </div>
+      </div>
+
+      <div class="game-item" onclick="autofill(1800)">
+        <div class="gi-emoji">🏎️</div>
+        <div class="gi-body">
+          <div class="gi-name">Gran Turismo 7 — Credits</div>
+          <div class="gi-meta"><span class="gi-tag rac">Racing</span> 2M GT Credits</div>
+        </div>
+        <div class="gi-right">
+          <div class="gi-price">KES 1,800</div>
+          <div class="gi-old">KES 2,200</div>
+          <button class="gi-buy">Pay M-Pesa</button>
+        </div>
+      </div>
+
+      <div class="game-item" onclick="autofill(600)">
+        <div class="gi-emoji">⚔️</div>
+        <div class="gi-body">
+          <div class="gi-name">Age of Empires IV — Deluxe</div>
+          <div class="gi-meta"><span class="gi-tag str">Strategy</span> Full Game + DLC</div>
+        </div>
+        <div class="gi-right">
+          <div class="gi-price">KES 600</div>
+          <button class="gi-buy">Pay M-Pesa</button>
+        </div>
+      </div>
+
+      <div class="game-item" onclick="autofill(250)">
+        <div class="gi-emoji">🎯</div>
+        <div class="gi-body">
+          <div class="gi-name">VALORANT — 1,000 VP</div>
+          <div class="gi-meta"><span class="gi-tag fps">FPS</span> VALORANT Points</div>
+        </div>
+        <div class="gi-right">
+          <div class="gi-price">KES 250</div>
+          <button class="gi-buy">Pay M-Pesa</button>
+        </div>
+      </div>
+
+      <div style="padding:16px;background:rgba(0,194,100,0.06);border:1px dashed rgba(0,194,100,0.2);border-radius:var(--radius);text-align:center">
+        <div style="font-size:12px;color:var(--muted);margin-bottom:8px">All prices in KES · Pay via M-Pesa STK Push</div>
+        <div style="font-size:11px;color:rgba(90,122,102,0.6)">Click any item to autofill the amount →</div>
+      </div>
+
+    </div>
   </div>
+</div>
+
+<!-- TECH SERVICES SECTION -->
+<div class="tech-section">
+  <div class="tech-left">
+    <div class="tech-eyebrow">What We Do</div>
+    <div class="tech-headline">Kenya's <em>Premier</em><br>Tech Studio</div>
+    <div class="tech-desc">From fintech integrations to custom software — Geopram Technologies builds the digital infrastructure powering modern Kenyan businesses.</div>
+
+    <div class="services-grid">
+      <div class="srv">
+        <div class="srv-icon">💳</div>
+        <div class="srv-name">Fintech & Payments</div>
+        <div class="srv-desc">M-Pesa, Pesalink & multi-gateway integrations</div>
+      </div>
+      <div class="srv">
+        <div class="srv-icon">🌐</div>
+        <div class="srv-name">Web Development</div>
+        <div class="srv-desc">Scalable web apps tailored for the African market</div>
+      </div>
+      <div class="srv">
+        <div class="srv-icon">📱</div>
+        <div class="srv-name">Mobile Apps</div>
+        <div class="srv-desc">Android & iOS solutions built for Kenya</div>
+      </div>
+      <div class="srv">
+        <div class="srv-icon">🤖</div>
+        <div class="srv-name">AI & Automation</div>
+        <div class="srv-desc">Smart workflows and AI-powered products</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tech-right">
+    <div class="client-card">
+      <div class="cc-avatar" style="background:rgba(0,194,100,0.1)">🏥</div>
+      <div class="cc-body">
+        <div class="cc-name">AfyaPlus Healthcare</div>
+        <div class="cc-role">Patient billing & M-Pesa integration</div>
+      </div>
+      <div class="cc-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+    </div>
+    <div class="client-card">
+      <div class="cc-avatar" style="background:rgba(59,130,246,0.1)">🏫</div>
+      <div class="cc-body">
+        <div class="cc-name">Elimu Schools Network</div>
+        <div class="cc-role">Student fees payment portal</div>
+      </div>
+      <div class="cc-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+    </div>
+    <div class="client-card">
+      <div class="cc-avatar" style="background:rgba(245,158,11,0.1)">🛒</div>
+      <div class="cc-body">
+        <div class="cc-name">Soko Markets Ltd.</div>
+        <div class="cc-role">E-commerce & inventory system</div>
+      </div>
+      <div class="cc-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+    </div>
+
+    <div class="cta-bar">
+      <div class="cta-text"><strong>Ready to build?</strong><br>Let's create something great together.</div>
+      <div class="cta-actions">
+        <button class="btn-outline">View Work</button>
+        <button class="btn-solid">Contact Us →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="foot-left">
+    Built by <strong>Kimathi Joram</strong> · <a href="mailto:celestakim018@gmail.com">celestakim018@gmail.com</a>
+  </div>
+  <div class="foot-links">
+    <span>Privacy</span>
+    <span>Terms</span>
+    <span>Support</span>
+    <span>API Docs</span>
+  </div>
+  <div class="foot-right">© 2026 GEOPRAM TECHNOLOGIES</div>
+</footer>
 
 </div>
 
 <script>
-let fullPhone = '';
+let fullPhone='';
 
 function buildPhone(el){
-  el.value = el.value.replace(/\D/g,'');
-  fullPhone = el.value ? '254' + el.value : '';
+  el.value=el.value.replace(/\D/g,'');
+  fullPhone=el.value?'254'+el.value:'';
 }
 
-function pick(v, el){
-  document.getElementById('amount').value = v;
-  document.querySelectorAll('.qa').forEach(b => b.classList.remove('on'));
+function pick(v,el){
+  document.getElementById('amount').value=v;
+  document.querySelectorAll('.qa').forEach(b=>b.classList.remove('on'));
   el.classList.add('on');
   sync();
 }
 
+function autofill(v){
+  document.getElementById('amount').value=v;
+  document.querySelectorAll('.qa').forEach(b=>b.classList.remove('on'));
+  sync();
+  document.querySelector('.pay-col').scrollIntoView({behavior:'smooth',block:'center'});
+}
+
 function sync(){
-  const v = parseInt(document.getElementById('amount').value) || 0;
-  const display = v > 0 ? v.toLocaleString() : '0';
-  document.getElementById('hero-val').textContent = display;
-  document.querySelectorAll('.qa').forEach(b => {
-    const raw = b.querySelector('.sub') ? b.childNodes[0].textContent.trim() : b.textContent.trim();
-    const num = parseFloat(raw.replace(/[K,]/g,'')) * (raw.includes('K') ? 1000 : 1);
-    b.classList.toggle('on', Math.abs(num - v) < 0.01 && v > 0);
+  const v=parseInt(document.getElementById('amount').value)||0;
+  document.getElementById('disp-val').textContent=v>0?v.toLocaleString():'0';
+  document.querySelectorAll('.qa').forEach(b=>{
+    const txt=b.childNodes[0].textContent.trim().replace(/[k,]/gi,'');
+    const bv=txt.includes('.')?parseFloat(txt)*1000:parseInt(txt)||0;
+    b.classList.toggle('on',bv===v&&v>0);
   });
 }
 
 async function pay(){
-  const amountEl = document.getElementById('amount');
-  const amount = amountEl.value.trim();
-  const btn = document.getElementById('btn');
-  const btnText = document.getElementById('btn-text');
-  const btnIcon = document.getElementById('btn-icon');
-  const stBox = document.getElementById('status');
-
-  stBox.className = 'status-box';
-
-  if(!fullPhone){
-    showStatus('Phone required','Please enter your M-Pesa phone number to continue.','er');return;
-  }
-  if(fullPhone.length !== 12){
-    showStatus('Invalid number','Enter exactly 9 digits after +254, e.g. 712 345 678.','er');return;
-  }
-  if(!amount || parseInt(amount) < 1){
-    showStatus('Amount required','Select a preset amount or enter a custom value above.','er');return;
-  }
-
-  btn.disabled = true;
-  btnText.textContent = 'Sending push…';
-  btnIcon.innerHTML = '<div class="spin"></div>';
-
+  const amount=document.getElementById('amount').value.trim();
+  const btn=document.getElementById('btn');
+  const stBox=document.getElementById('status');
+  stBox.className='status-box';
+  if(!fullPhone){showStatus('Please enter your M-Pesa phone number.','er');return}
+  if(fullPhone.length!==12){showStatus('Enter exactly 9 digits after 254. E.g. 712345678','er');return}
+  if(!amount||parseInt(amount)<1){showStatus('Please select or enter a valid amount.','er');return}
+  btn.disabled=true;
+  btn.innerHTML='<div class="spin"></div> Sending push…';
   try{
-    const r = await fetch('/api/stk_push',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({phone:fullPhone, amount:parseInt(amount)})
-    });
-    const d = await r.json();
-
-    if(d.ResponseCode === '0'){
-      showStatus('Prompt sent!','Check your phone and enter your M-Pesa PIN to complete payment.','ok');
-    } else if(d.error){
-      showStatus('Payment failed', d.error + (d.details ? ': ' + JSON.stringify(d.details) : ''), 'er');
-    } else {
-      showStatus('Error', d.errorMessage || d.ResponseDescription || JSON.stringify(d), 'er');
+    const r=await fetch('/api/stk_push',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({phone:fullPhone,amount:parseInt(amount)})});
+    const d=await r.json();
+    if(d.ResponseCode==='0'){
+      showStatus('STK prompt sent! Check your phone and enter your M-Pesa PIN to complete.','ok');
+    }else if(d.error){
+      showStatus(d.error+(d.details?': '+JSON.stringify(d.details):''),'er');
+    }else{
+      showStatus(d.errorMessage||d.ResponseDescription||JSON.stringify(d),'er');
     }
-  } catch(e){
-    showStatus('Connection error','Could not reach server. Check your internet and try again.','er');
+  }catch(e){
+    showStatus('Could not reach server. Check your connection and try again.','er');
   }
-
-  btn.disabled = false;
-  btnText.textContent = 'Send STK Push';
-  btnIcon.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
+  btn.disabled=false;
+  btn.innerHTML='Send STK Push <svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;transition:transform .2s"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
 }
 
-function showStatus(title, msg, type){
-  const stBox = document.getElementById('status');
-  const icon = document.getElementById('st-icon');
-  document.getElementById('st-title').textContent = title;
-  document.getElementById('st-text').textContent = msg;
-  stBox.className = 'status-box ' + type;
-  if(type === 'ok'){
-    icon.innerHTML = '<polyline points="20 6 9 17 4 12"/>';
-  } else {
-    icon.innerHTML = '<circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>';
-  }
-  stBox.style.display = 'flex';
+function showStatus(msg,type){
+  const stBox=document.getElementById('status');
+  const icon=document.getElementById('st-icon');
+  document.getElementById('st-text').textContent=msg;
+  stBox.className='status-box '+type;
+  if(type==='ok'){icon.innerHTML='<polyline points="20 6 9 17 4 12"/>';}
+  else{icon.innerHTML='<circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>';}
 }
+
+// filter tabs
+document.querySelectorAll('.ftab').forEach(t=>{
+  t.addEventListener('click',()=>{
+    document.querySelectorAll('.ftab').forEach(x=>x.classList.remove('act'));
+    t.classList.add('act');
+  });
+});
 </script>
 </body>
 </html>
